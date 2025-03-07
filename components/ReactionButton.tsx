@@ -9,9 +9,9 @@ import { ToggleLike } from '@utilities/toggleLike';
 import { VolumeManager } from 'react-native-volume-manager';
 import { Audio } from 'expo-av';
 
-interface CustomButtonProps {}
+interface ReactionButtonProps {}
 
-const CustomButton: React.FC<CustomButtonProps> = () => {
+const ReactionButton: React.FC<ReactionButtonProps> = () => {
 
     useEffect(() => {
         const silentListener = VolumeManager.addSilentListener((status) => {
@@ -99,4 +99,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CustomButton;
+export default ReactionButton;

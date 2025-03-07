@@ -2,12 +2,12 @@ import {
   SafeAreaView,
   StyleSheet
 } from "react-native";
-import CustomButton from "@components/CustomButton";
+import ReactionButton from "@components/ReactionButton";
 
 const Index = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <CustomButton />
+      <ReactionButton />
     </SafeAreaView>
   );
 }
