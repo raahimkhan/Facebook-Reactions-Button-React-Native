@@ -9,7 +9,7 @@ export const ToggleLike = async (
     reaction: Reaction,
     setReaction: React.Dispatch<React.SetStateAction<Reaction>>,
     isMutedRef: React.RefObject<boolean | null>,
-    sound: React.RefObject<Audio.Sound>
+    sound: React.RefObject<Audio.Sound>,
 ) => {
     try {
         if (isMutedRef.current) {
