@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
     StyleSheet,
@@ -13,6 +13,8 @@ import { Reaction } from '@interfaces/reaction';
 import { ReactionData } from '@utilities/reactionData';
 import { SelectReaction } from '@utilities/selectReaction';
 import { Audio } from 'expo-av';
+import { CalculateGifPosition } from '@utilities/CalculateGifPosition';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 interface ReactionsContainerProps {
     reactionButtonPosition: { x: number; y: number };
@@ -32,9 +34,33 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
     setShowReactionContainer
 }) => {
 
+    const [gifPositions, setGifPositions] = useState<{ x: number, y: number, id: number }[]>([]);
+
+    const viewRefs = useRef<{[key: number]: any}>({});
+
     const opacity = React.useRef(new Animated.Value(0)).current;
     const translateX = React.useRef(new Animated.Value(reactionButtonPosition.x)).current;
     const translateY = React.useRef(new Animated.Value(reactionButtonPosition.y)).current;
+
+    const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+        const { absoluteX } = e;
+        for (let i = 0; i <= 4; i++) {
+            const startX = gifPositions[i].x;
+            const endX = gifPositions[i + 1].x;
+            if (absoluteX >= startX && absoluteX <= endX) {
+                console.log(`Overlap detected with gif at ID: ${gifPositions[i].id}`);
+            }
+        }
+        const lastGif = gifPositions[gifPositions.length - 1];
+        if (absoluteX >= lastGif.x) {
+            console.log(`Overlap detected with gif at last index`);
+        }
+    })
+    .onEnd((_) => {
+        console.log('ended');
+    });
+    panGesture.shouldCancelWhenOutside(true);
 
     useEffect(() => {
         Animated.parallel([
@@ -44,7 +70,7 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                 useNativeDriver: true,
             }),
             Animated.timing(translateY, {
-                toValue: screenSpacePercentage.above > 20 ? reactionButtonPosition.y - hp(8) : reactionButtonPosition.y + hp(8),
+                toValue: screenSpacePercentage.above > 20 ? reactionButtonPosition.y - hp(2) : reactionButtonPosition.y + hp(2),
                 duration: 200,
                 useNativeDriver: true,
             }),
@@ -56,43 +82,60 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
         ]).start();
     }, []);
 
-    return (
-        <Animated.View
-            style={[
-                styles.reactionsContainer, {
-                    opacity: opacity,
-                    transform: [
-                        { translateY },
-                        { translateX },
-                    ],
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            ReactionData.forEach(reaction => {
+                if (reaction.reactionID !== 1 && reaction.reactionID !== 7) {
+                    CalculateGifPosition(reaction.reactionID, viewRefs, setGifPositions);
                 }
-            ]}
-        >
-            {ReactionData.map((reaction) => (
-                reaction.reactionID !== 1 && reaction.reactionID !== 7 && (
-                    <View
-                        style={styles.gifContainer}
-                        key={reaction.reactionID}
-                        onStartShouldSetResponder={() => true}
-                        onResponderRelease={() => SelectReaction(
-                                reaction,
-                                setReaction,
-                                isMutedRef,
-                                sound,
-                                setShowReactionContainer
-                            )
-                        }
-                    >
-                        <Image
-                            style={styles.gifStyle}
-                            source={reaction.reactionGif}
-                            contentFit="contain"
-                            contentPosition="center"
-                        />
-                    </View>
-                )
-            ))}
-        </Animated.View>
+            });
+        }, 300);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <GestureDetector gesture={panGesture}>
+            <Animated.View
+                style={[
+                    styles.reactionsContainer, {
+                        opacity: opacity,
+                        transform: [
+                            { translateY },
+                            { translateX },
+                        ],
+                    }
+                ]}
+            >
+                {ReactionData.map((reaction) => (
+                    reaction.reactionID !== 1 && reaction.reactionID !== 7 && (
+                        <View
+                            key={reaction.reactionID}
+                            ref={ref => {
+                                viewRefs.current[reaction.reactionID] = ref;
+                            }}
+                            style={styles.gifContainer}
+                            onLayout={() => CalculateGifPosition(reaction.reactionID, viewRefs, setGifPositions)}
+                            onStartShouldSetResponder={() => true}
+                            onResponderRelease={() => SelectReaction(
+                                    reaction,
+                                    setReaction,
+                                    isMutedRef,
+                                    sound,
+                                    setShowReactionContainer
+                                )
+                            }
+                        >
+                            <Image
+                                style={styles.gifStyle}
+                                source={reaction.reactionGif}
+                                contentFit="contain"
+                                contentPosition="center"
+                            />
+                        </View>
+                    )
+                ))}
+            </Animated.View>
+        </GestureDetector>
     );
 };
 
@@ -107,7 +150,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingVertical: hp(0.7),
         paddingLeft: wp(1),
-        paddingRight: wp(1)
+        paddingRight: wp(1),
     },
     gifContainer: {
         flex: 1,
