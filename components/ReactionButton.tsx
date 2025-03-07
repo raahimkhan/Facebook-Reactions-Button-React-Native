@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Image, StyleSheet, View, Text } from 'react-native';
+import {
+    Image,
+    StyleSheet,
+    View,
+    Text,
+    TouchableOpacity,
+} from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { Button } from 'react-native-elements';
 import { Reaction } from '@interfaces/reaction';
 import Feather from '@expo/vector-icons/Feather';
 import { ReactionData } from "@utilities/reactionData";
@@ -25,40 +30,41 @@ const ReactionButton: React.FC<ReactionButtonProps> = () => {
 
     const [reaction, setReaction] = useState<Reaction>(ReactionData[0]);
 
+    const ToggleReactionsModal = () => {
+        
+    }
+
     return (
-        <Button
+        <TouchableOpacity
+            style={styles.buttonStyle}
             onPress={() => ToggleLike(reaction, setReaction, isMutedRef, sound)}
-            type="outline"
-            buttonStyle={styles.buttonStyle}
-            disabled={false}
-            loading={false}
-            title=""
-            icon={
-                <View style={styles.buttonContentContainer}>
-                    <View style={styles.buttonIconContainer}>
-                        {
-                            reaction.reactionName === 'default' ? (
-                                <Feather
-                                    name="thumbs-up"
-                                    size={wp(6.5)}
-                                    color="white"
-                                />
-                            ) : (
-                                <Image
-                                    source={reaction.reactionImage}
-                                    style={styles.iconStyle}
-                                />
-                            )
-                        }
-                    </View>
-                    <View style={styles.buttonTitleContainer}>
-                        <Text style={[styles.buttonTitleStyle, { color: reaction.reactionTextColor }]}>
-                            { reaction.reactionName === 'default' ? 'Like' : reaction.reactionName }
-                        </Text>
-                    </View>
+            onLongPress={() => ToggleReactionsModal()}
+            activeOpacity={1}
+        >
+            <View style={styles.buttonContentContainer}>
+                <View style={styles.buttonIconContainer}>
+                    {
+                        reaction.reactionName === 'default' ? (
+                            <Feather
+                                name="thumbs-up"
+                                size={wp(6.5)}
+                                color="white"
+                            />
+                        ) : (
+                            <Image
+                                source={reaction.reactionImage}
+                                style={styles.iconStyle}
+                            />
+                        )
+                    }
                 </View>
-            }
-        />
+                <View style={styles.buttonTitleContainer}>
+                    <Text style={[styles.buttonTitleStyle, { color: reaction.reactionTextColor }]}>
+                        { reaction.reactionName === 'default' ? 'Like' : reaction.reactionName }
+                    </Text>
+                </View>
+            </View>
+        </TouchableOpacity>
     );
 };
 
