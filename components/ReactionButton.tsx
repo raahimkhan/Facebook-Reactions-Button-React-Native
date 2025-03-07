@@ -90,6 +90,10 @@ const ReactionButton: React.FC = () => {
                         <ReactionsContainer
                             reactionButtonPosition={reactionButtonPosition}
                             screenSpacePercentage={screenSpacePercentage}
+                            setReaction={setReaction}
+                            isMutedRef={isMutedRef}
+                            sound={sound}
+                            setShowReactionContainer={setShowReactionContainer}
                         />
                     </View>
                 )
