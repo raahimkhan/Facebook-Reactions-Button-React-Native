@@ -1,8 +1,8 @@
 # Reaction Button with Animated Tooltip
 
-A fully interactive and customizable reaction button component for React Native. This component allows users to "like" or "unlike" with a simple button press, and provides an engaging emoji selection experience with animated reactions, tooltips, and haptic feedback. Perfect for building rich, interactive user interfaces in chat applications, social media apps, or any app requiring dynamic reactions.
+A fully interactive and customizable reaction button component for React Native. Created entirely from scratch using `Reanimated V3`, i.e., no third party libraries utilised. This component allows users to "like" or "unlike" with a simple button press, and provides an engaging emoji selection experience with animated reactions, tooltips, and haptic feedback. Perfect for building rich, interactive user interfaces in chat applications, social media apps, or any app requiring dynamic reactions.
 
-![Facebook Reactions Button](https://github.com/raahimkhan/Facebook-Reactions-Button-React-Native/raw/main/FacebookReactionsButton.mov)
+Uploading FacebookReactionsButton.mp4…
 
 ## Features
 
