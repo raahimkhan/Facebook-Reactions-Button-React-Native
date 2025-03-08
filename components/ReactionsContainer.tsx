@@ -12,7 +12,7 @@ import { Reaction } from '@interfaces/reaction';
 import { ReactionData } from '@utilities/reactionData';
 import { SelectReaction } from '@utilities/selectReaction';
 import { Audio } from 'expo-av';
-import { CalculateGifPosition } from '@utilities/CalculateGifPosition';
+import { CalculateGifPosition } from '@utilities/calculateGifPosition';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ViewRefsScaleGifs } from '@interfaces/viewRefsScaleGifs';
 import {

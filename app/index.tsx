@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   gestureContainer: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "flex-start",
+    alignItems: "center",
   },
 });
 

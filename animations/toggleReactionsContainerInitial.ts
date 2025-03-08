@@ -4,6 +4,7 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp 
 } from 'react-native-responsive-screen';
+import { IsIphoneSE } from '@utilities/mobileDevices';
 
 export const ToggleReactionsContainerInitialAnimation = async (
     opacity: Animated.Value,
@@ -12,6 +13,13 @@ export const ToggleReactionsContainerInitialAnimation = async (
     screenSpacePercentage: { left: number; above: number },
     reactionButtonPosition: { x: number; y: number },
 ) => {
+    let translateYToValue;
+    if (IsIphoneSE()) {
+        translateYToValue = screenSpacePercentage.above > 20 ? reactionButtonPosition.y - hp(7) : reactionButtonPosition.y + hp(7);
+    }
+    else {
+        translateYToValue = screenSpacePercentage.above > 20 ? reactionButtonPosition.y - hp(2) : reactionButtonPosition.y + hp(6);
+    }
     Animated.parallel([
         Animated.timing(opacity, {
             toValue: 1,
@@ -19,7 +27,7 @@ export const ToggleReactionsContainerInitialAnimation = async (
             useNativeDriver: true,
         }),
         Animated.timing(translateY, {
-            toValue: screenSpacePercentage.above > 20 ? reactionButtonPosition.y - hp(2) : reactionButtonPosition.y + hp(2),
+            toValue: translateYToValue,
             duration: 200,
             useNativeDriver: true,
         }),

@@ -16,7 +16,7 @@ import { ReactionData } from "@utilities/reactionData";
 import { ToggleLike } from '@utilities/toggleLike';
 import { VolumeManager } from 'react-native-volume-manager';
 import { Audio } from 'expo-av';
-import { CalculateReactionButtonPosition } from '@utilities/CalculateReactionButtonPosition';
+import { CalculateReactionButtonPosition } from '@utilities/calculateReactionButtonPosition';
 import ReactionsContainer from '@components/ReactionsContainer';
 
 const ReactionButton: React.FC = () => {
