@@ -100,6 +100,17 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
             lastActiveEmojiRef
         );
     })
+    .onTouchesDown((e) => {
+        if (e.allTouches.length > 0) {
+            UpdateEmojiScaleAndTranslationAnimation(
+                scales,
+                emojiTranslationsY,
+                gifPositions,
+                e.allTouches[0].absoluteX,
+                lastActiveEmojiRef
+            );
+        }
+    })
     .onTouchesUp((_) => {
         if (lastActiveEmojiRef.current !== null) {
             const selectedReaction = ReactionData.find(
