@@ -14,7 +14,7 @@ export const SelectReaction = async (
     try {
         setShowReactionContainer(false);
         if (isMutedRef.current) {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
         else {
             await PlaySound(sound);
