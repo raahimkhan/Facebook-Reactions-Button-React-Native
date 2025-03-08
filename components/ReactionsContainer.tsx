@@ -129,12 +129,14 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
             );
         }
     })
-    .onTouchesUp((_) => {
+    .onEnd((_) => {
+        let delay: boolean = false;
         if (lastActiveEmojiRef.current !== null) {
             const selectedReaction = ReactionData.find(
                 (reaction) => reaction.reactionID === lastActiveEmojiRef.current
             );
             if (selectedReaction) {
+                delay = true;
                 SelectReaction(
                     selectedReaction,
                     setReaction,
@@ -150,14 +152,24 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                 );
             }
         }
-    })
-    .onEnd((_) => {
-        ResetEmojisScaleAndTranslationAnimation(
-            scales,
-            emojiTranslationsY
-        );
-        lastActiveEmojiRef.current = null;
-        setShowReactionContainer(false);
+        if (delay) {
+            setTimeout(() => {
+                ResetEmojisScaleAndTranslationAnimation(
+                    scales,
+                    emojiTranslationsY
+                );
+                lastActiveEmojiRef.current = null;
+                setShowReactionContainer(false);
+            }, 500);
+        }
+        else {
+            ResetEmojisScaleAndTranslationAnimation(
+                scales,
+                emojiTranslationsY
+            );
+            lastActiveEmojiRef.current = null;
+            setShowReactionContainer(false);
+        }
     });
 
     useEffect(() => {
