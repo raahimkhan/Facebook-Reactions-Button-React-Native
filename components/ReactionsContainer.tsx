@@ -95,6 +95,17 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
 
     const lastActiveEmojiRef = useRef<number | null>(null);
 
+    const [toolTipVisible, setToolTipVisible] = useState<{ id: number; visible: boolean }[]>(
+        [
+            { id: 2, visible: false },
+            { id: 3, visible: false },
+            { id: 4, visible: false },
+            { id: 5, visible: false },
+            { id: 6, visible: false },
+            { id: 8, visible: false },
+        ]
+    );
+
     const panGesture = Gesture.Pan().runOnJS(true)
     .onBegin((e) => {
         panStartY.current = e.absoluteY;

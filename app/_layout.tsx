@@ -1,6 +1,5 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import { PaperProvider } from 'react-native-paper';
 
 const StackLayout = () => {
 
@@ -20,9 +19,7 @@ const StackLayout = () => {
 
 const RootLayout = () => {
   return (
-    <PaperProvider>
-      <StackLayout />
-    </PaperProvider>
+    <StackLayout />
   );
 };
 

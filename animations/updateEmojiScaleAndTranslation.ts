@@ -13,7 +13,7 @@ export const UpdateEmojiScaleAndTranslationAnimation = async (
     emojiTranslationsY: React.MutableRefObject<{ id: number; translateY: Animated.Value }[]>,
     gifPositions: { id: number; x: number }[],
     absoluteX: number,
-    lastActiveEmojiRef: React.MutableRefObject<number | null>
+    lastActiveEmojiRef: React.MutableRefObject<number | null>,
 ) => {
     const scaleValue = 2;
     const scaleDownValue = 0.7;
