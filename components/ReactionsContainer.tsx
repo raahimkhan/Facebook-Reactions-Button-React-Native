@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     StyleSheet,
     Animated,
+    Text,
+    View,
 } from 'react-native';
 import {
     widthPercentageToDP as wp,
@@ -27,6 +29,7 @@ import {
 import {
     InstantResetEmojisScaleAndTranslation
 } from '@animations/instantResetEmojisScaleAndTranslation';
+import { HideToolTips } from '@utilities/hideToolTips';
 
 interface ReactionsContainerProps {
     reactionButtonPosition: { x: number; y: number };
@@ -119,6 +122,7 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                 emojiTranslationsY
             )
             lastActiveEmojiRef.current = null;
+            HideToolTips(setToolTipVisible);
             return;
         }
         UpdateEmojiScaleAndTranslationAnimation(
@@ -126,7 +130,9 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
             emojiTranslationsY,
             gifPositions,
             e.absoluteX,
-            lastActiveEmojiRef
+            lastActiveEmojiRef,
+            setToolTipVisible,
+            screenSpacePercentage
         );
     })
     .onTouchesDown((e) => {
@@ -136,7 +142,9 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                 emojiTranslationsY,
                 gifPositions,
                 e.allTouches[0].absoluteX,
-                lastActiveEmojiRef
+                lastActiveEmojiRef,
+                setToolTipVisible,
+                screenSpacePercentage
             );
         }
     })
@@ -171,6 +179,7 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                 );
                 lastActiveEmojiRef.current = null;
                 setShowReactionContainer(false);
+                HideToolTips(setToolTipVisible);
             }, 500);
         }
         else {
@@ -180,6 +189,7 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
             );
             lastActiveEmojiRef.current = null;
             setShowReactionContainer(false);
+            HideToolTips(setToolTipVisible);
         }
     });
 
@@ -261,6 +271,13 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                                 contentFit="contain"
                                 contentPosition="center"
                             />
+                            {toolTipVisible.find(tooltip => tooltip.id === reaction.reactionID && tooltip.visible) && (
+                                <View style={[styles.toolTipContainer, {
+                                    top: screenSpacePercentage.above > 20 ? -hp(1.5) : hp(4),
+                                }]}>
+                                    <Text style={styles.toolTipText}> {reaction.reactionName} </Text>
+                                </View>
+                            )}
                         </Animated.View>
                     )
                 ))}
@@ -281,6 +298,22 @@ const styles = StyleSheet.create({
         paddingVertical: hp(0.7),
         paddingLeft: wp(1),
         paddingRight: wp(1),
+    },
+    toolTipContainer: {
+        position: 'absolute',
+        backgroundColor: '#625e5f',
+        width: wp(12),
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 20,
+        paddingTop: hp(0.2),
+        paddingBottom: hp(0.2),
+    },
+    toolTipText: {
+        color: 'white',
+        fontSize: wp(2.5),
     },
     gifContainer: {
         flex: 1,

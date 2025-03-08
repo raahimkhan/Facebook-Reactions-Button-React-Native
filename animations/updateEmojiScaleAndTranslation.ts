@@ -7,6 +7,7 @@ import {
     InstantResetEmojisScaleAndTranslation
 } from '@animations/instantResetEmojisScaleAndTranslation';
 import * as Haptics from 'expo-haptics';
+import { HideToolTips } from '@utilities/hideToolTips';
 
 export const UpdateEmojiScaleAndTranslationAnimation = async (
     scales: React.MutableRefObject<{ id: number; scale: Animated.Value }[]>,
@@ -14,10 +15,12 @@ export const UpdateEmojiScaleAndTranslationAnimation = async (
     gifPositions: { id: number; x: number }[],
     absoluteX: number,
     lastActiveEmojiRef: React.MutableRefObject<number | null>,
+    setToolTipVisible: React.Dispatch<React.SetStateAction<{ id: number, visible: boolean }[]>>,
+    screenSpacePercentage: { left: number; above: number },
 ) => {
     const scaleValue = 2;
     const scaleDownValue = 0.7;
-    const translateYValue = -hp(2);
+    const translateYValue = screenSpacePercentage.above > 20 ? -hp(2) : hp(3);
     let activeId: number | null = null;
     gifPositions.forEach((gif, i) => {
         if (i >= gifPositions.length - 1) {
@@ -39,8 +42,15 @@ export const UpdateEmojiScaleAndTranslationAnimation = async (
     if (activeId === null) {
         InstantResetEmojisScaleAndTranslation(scales, emojiTranslationsY);
         lastActiveEmojiRef.current = null;
+        HideToolTips(setToolTipVisible);
     }
     else {
+        setToolTipVisible(prevState =>
+            prevState.map(tooltip => ({
+                ...tooltip,
+                visible: tooltip.id === activeId ? true : false
+            }))
+        );
         if (activeId !== lastActiveEmojiRef.current) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             lastActiveEmojiRef.current = activeId;
