@@ -26,7 +26,7 @@ To run the project locally:
 
 1. Clone the repository: `https://github.com/raahimkhan/Facebook-Reactions-Button-React-Native.git`
 2. Navigate to project directory: `cd Facebook-Reactions-Button-React-Native`
-3. Install the required dependencies: `npm install`
+3. Install the required dependencies: `npm install && cd ios && pod install`
 4. Install the development client for iOS simulator: `npx expo run:ios`
 5. For subsequent runs, you can use Expo Go by starting the project with: `npx expo start`
    - Press `i` to open the app in the iOS simulator.
