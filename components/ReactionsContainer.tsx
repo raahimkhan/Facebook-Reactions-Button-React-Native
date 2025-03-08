@@ -17,7 +17,16 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ViewRefsScaleGifs } from '@interfaces/viewRefsScaleGifs';
 import {
     ToggleReactionsContainerInitialAnimation
-} from '@/animations/toggleReactionsContainerInitialAnimation';
+} from '@animations/toggleReactionsContainerInitial';
+import {
+    ResetEmojisScaleAndTranslationAnimation
+} from '@animations/resetEmojisScaleAndTranslation';
+import {
+    UpdateEmojiScaleAndTranslationAnimation
+} from '@animations/updateEmojiScaleAndTranslation';
+import {
+    InstantResetEmojisScaleAndTranslation
+} from '@animations/instantResetEmojisScaleAndTranslation';
 
 interface ReactionsContainerProps {
     reactionButtonPosition: { x: number; y: number };
@@ -59,60 +68,44 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
         { id: 8, translateY: new Animated.Value(0) },
     ]);
 
+    const panStartY = useRef(0);
+    const yThreshold = hp(10);
+
     const opacity = React.useRef(new Animated.Value(0)).current;
     const translateX = React.useRef(new Animated.Value(reactionButtonPosition.x)).current;
     const translateY = React.useRef(new Animated.Value(reactionButtonPosition.y)).current;
 
+    const lastActiveEmojiRef = useRef<number | null>(null);
+
     const panGesture = Gesture.Pan().runOnJS(true)
+    .onBegin((e) => {
+        panStartY.current = e.absoluteY;
+    })
     .onUpdate((e) => {
-        const scaleValue = 2;
-        const scaleDownValue = 0.7;
-        const translateYValue = -hp(2);
-        const { absoluteX } = e;
-        let activeId: number | null = null;
-        gifPositions.forEach((gif, i) => {
-            if (i >= gifPositions.length - 1) {
-                return;
-            }
-            const { x: startX } = gif;
-            const { x: endX } = gifPositions[i + 1];
-            if (absoluteX >= startX && absoluteX <= endX) {
-                activeId = gif.id;
-            }
-        });
-        const lastGif = gifPositions[gifPositions.length - 1];
-        if (absoluteX > lastGif.x + 40) {
-            activeId = null;
+        const lowerBound = panStartY.current - yThreshold;
+        const upperBound = panStartY.current + yThreshold;
+        if (e.absoluteY < lowerBound || e.absoluteY > upperBound) {
+            InstantResetEmojisScaleAndTranslation(
+                scales,
+                emojiTranslationsY
+            )
+            lastActiveEmojiRef.current = null;
+            return;
         }
-        else if (absoluteX >= lastGif.x) {
-            activeId = 8;
-        }
-        scales.current.forEach(({ id, scale }) => {
-            const isActive = id === activeId;
-            scale.stopAnimation();
-            scale.setValue(isActive ? scaleValue : scaleDownValue);
-        });
-        emojiTranslationsY.current.forEach(({ id, translateY }) => {
-            const isActive = id === activeId;
-            translateY.stopAnimation();
-            translateY.setValue(isActive ? translateYValue : 0);
-        });
+        UpdateEmojiScaleAndTranslationAnimation(
+            scales,
+            emojiTranslationsY,
+            gifPositions,
+            e.absoluteX,
+            lastActiveEmojiRef
+        );
     })
     .onEnd((_) => {
-        scales.current.forEach(({ scale }) => {
-            Animated.timing(scale, {
-                toValue: 1,
-                duration: 150,
-                useNativeDriver: true,
-            }).start();
-        });
-        emojiTranslationsY.current.forEach(({ translateY }) => {
-            Animated.timing(translateY, {
-                toValue: 0,
-                duration: 150,
-                useNativeDriver: true,
-            }).start();
-        });
+        ResetEmojisScaleAndTranslationAnimation(
+            scales,
+            emojiTranslationsY
+        );
+        lastActiveEmojiRef.current = null;
     });
 
     useEffect(() => {
