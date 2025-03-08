@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    View,
     StyleSheet,
     Animated,
 } from 'react-native';
@@ -15,6 +14,10 @@ import { SelectReaction } from '@utilities/selectReaction';
 import { Audio } from 'expo-av';
 import { CalculateGifPosition } from '@utilities/CalculateGifPosition';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { ViewRefsScaleGifs } from '@interfaces/viewRefsScaleGifs';
+import {
+    ToggleReactionsContainerInitialAnimation
+} from '@/animations/toggleReactionsContainerInitialAnimation';
 
 interface ReactionsContainerProps {
     reactionButtonPosition: { x: number; y: number };
@@ -36,57 +39,97 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
 
     const [gifPositions, setGifPositions] = useState<{ x: number, y: number, id: number }[]>([]);
 
-    const viewRefs = useRef<{[key: number]: any}>({});
+    const viewRefsScaleGifs = useRef<{[key: number]: ViewRefsScaleGifs | null}>({});
+
+    const scales = useRef<{ id: number, scale: Animated.Value }[]>([
+        { id: 2, scale: new Animated.Value(1) },
+        { id: 3, scale: new Animated.Value(1) },
+        { id: 4, scale: new Animated.Value(1) },
+        { id: 5, scale: new Animated.Value(1) },
+        { id: 6, scale: new Animated.Value(1) },
+        { id: 8, scale: new Animated.Value(1) },
+    ]);
+
+    const emojiTranslationsY = useRef<{ id: number, translateY: Animated.Value }[]>([
+        { id: 2, translateY: new Animated.Value(0) },
+        { id: 3, translateY: new Animated.Value(0) },
+        { id: 4, translateY: new Animated.Value(0) },
+        { id: 5, translateY: new Animated.Value(0) },
+        { id: 6, translateY: new Animated.Value(0) },
+        { id: 8, translateY: new Animated.Value(0) },
+    ]);
 
     const opacity = React.useRef(new Animated.Value(0)).current;
     const translateX = React.useRef(new Animated.Value(reactionButtonPosition.x)).current;
     const translateY = React.useRef(new Animated.Value(reactionButtonPosition.y)).current;
 
-    const panGesture = Gesture.Pan()
+    const panGesture = Gesture.Pan().runOnJS(true)
     .onUpdate((e) => {
+        const scaleValue = 2;
+        const scaleDownValue = 0.7;
+        const translateYValue = -hp(2);
         const { absoluteX } = e;
-        for (let i = 0; i <= 4; i++) {
-            const startX = gifPositions[i].x;
-            const endX = gifPositions[i + 1].x;
-            if (absoluteX >= startX && absoluteX <= endX) {
-                console.log(`Overlap detected with gif at ID: ${gifPositions[i].id}`);
+        let activeId: number | null = null;
+        gifPositions.forEach((gif, i) => {
+            if (i >= gifPositions.length - 1) {
+                return;
             }
-        }
+            const { x: startX } = gif;
+            const { x: endX } = gifPositions[i + 1];
+            if (absoluteX >= startX && absoluteX <= endX) {
+                activeId = gif.id;
+            }
+        });
         const lastGif = gifPositions[gifPositions.length - 1];
-        if (absoluteX >= lastGif.x) {
-            console.log(`Overlap detected with gif at last index`);
+        if (absoluteX > lastGif.x + 40) {
+            activeId = null;
         }
+        else if (absoluteX >= lastGif.x) {
+            activeId = 8;
+        }
+        scales.current.forEach(({ id, scale }) => {
+            const isActive = id === activeId;
+            scale.stopAnimation();
+            scale.setValue(isActive ? scaleValue : scaleDownValue);
+        });
+        emojiTranslationsY.current.forEach(({ id, translateY }) => {
+            const isActive = id === activeId;
+            translateY.stopAnimation();
+            translateY.setValue(isActive ? translateYValue : 0);
+        });
     })
     .onEnd((_) => {
-        console.log('ended');
+        scales.current.forEach(({ scale }) => {
+            Animated.timing(scale, {
+                toValue: 1,
+                duration: 150,
+                useNativeDriver: true,
+            }).start();
+        });
+        emojiTranslationsY.current.forEach(({ translateY }) => {
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 150,
+                useNativeDriver: true,
+            }).start();
+        });
     });
-    panGesture.shouldCancelWhenOutside(true);
 
     useEffect(() => {
-        Animated.parallel([
-            Animated.timing(opacity, {
-                toValue: 1,
-                duration: 500,
-                useNativeDriver: true,
-            }),
-            Animated.timing(translateY, {
-                toValue: screenSpacePercentage.above > 20 ? reactionButtonPosition.y - hp(2) : reactionButtonPosition.y + hp(2),
-                duration: 200,
-                useNativeDriver: true,
-            }),
-            Animated.timing(translateX, {
-                toValue: screenSpacePercentage.left < 35 ? reactionButtonPosition.x + wp(8) : reactionButtonPosition.x - wp(16),
-                duration: 200,
-                useNativeDriver: true,
-            }),
-        ]).start();
+        ToggleReactionsContainerInitialAnimation(
+            opacity,
+            translateX,
+            translateY,
+            screenSpacePercentage,
+            reactionButtonPosition
+        );
     }, []);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             ReactionData.forEach(reaction => {
                 if (reaction.reactionID !== 1 && reaction.reactionID !== 7) {
-                    CalculateGifPosition(reaction.reactionID, viewRefs, setGifPositions);
+                    CalculateGifPosition(reaction.reactionID, viewRefsScaleGifs, setGifPositions);
                 }
             });
         }, 300);
@@ -101,20 +144,29 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                         opacity: opacity,
                         transform: [
                             { translateY },
-                            { translateX },
+                            { translateX }
                         ],
                     }
                 ]}
             >
                 {ReactionData.map((reaction) => (
                     reaction.reactionID !== 1 && reaction.reactionID !== 7 && (
-                        <View
+                        <Animated.View
                             key={reaction.reactionID}
                             ref={ref => {
-                                viewRefs.current[reaction.reactionID] = ref;
+                                viewRefsScaleGifs.current[reaction.reactionID] = ref as unknown as ViewRefsScaleGifs;
                             }}
-                            style={styles.gifContainer}
-                            onLayout={() => CalculateGifPosition(reaction.reactionID, viewRefs, setGifPositions)}
+                            style={[styles.gifContainer, {
+                                transform: [
+                                    {
+                                        scale: scales.current.find(scale => scale.id === reaction.reactionID)?.scale || new Animated.Value(0),
+                                    },
+                                    {
+                                        translateY: emojiTranslationsY.current.find(trans => trans.id === reaction.reactionID)?.translateY || new Animated.Value(0),
+                                    }
+                                ]
+                            }]}
+                            onLayout={() => CalculateGifPosition(reaction.reactionID, viewRefsScaleGifs, setGifPositions)}
                             onStartShouldSetResponder={() => true}
                             onResponderRelease={() => SelectReaction(
                                     reaction,
@@ -131,7 +183,7 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                                 contentFit="contain"
                                 contentPosition="center"
                             />
-                        </View>
+                        </Animated.View>
                     )
                 ))}
             </Animated.View>

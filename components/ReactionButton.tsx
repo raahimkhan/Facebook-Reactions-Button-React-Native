@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         width: wp(38),
         paddingVertical: hp(1.2),
+        marginLeft: wp(3)
     },
     buttonContentContainer: {
         flexDirection: 'row',

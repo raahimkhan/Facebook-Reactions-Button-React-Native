@@ -32,6 +32,9 @@
       ],
       "@interfaces/*": [
         "./interfaces/*"
+      ],
+      "@animations/*": [
+        "./animations/*"
       ]
     }
   },
