@@ -59,6 +59,15 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
         { id: 8, scale: new Animated.Value(1) },
     ]);
 
+    const emojiTranslationsX = useRef<{ id: number, translateX: Animated.Value }[]>([
+        { id: 2, translateX: new Animated.Value(0) },
+        { id: 3, translateX: new Animated.Value(0) },
+        { id: 4, translateX: new Animated.Value(0) },
+        { id: 5, translateX: new Animated.Value(0) },
+        { id: 6, translateX: new Animated.Value(0) },
+        { id: 8, translateX: new Animated.Value(0) },
+    ]);
+
     const emojiTranslationsY = useRef<{ id: number, translateY: Animated.Value }[]>([
         { id: 2, translateY: new Animated.Value(0) },
         { id: 3, translateY: new Animated.Value(0) },
@@ -66,6 +75,15 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
         { id: 5, translateY: new Animated.Value(0) },
         { id: 6, translateY: new Animated.Value(0) },
         { id: 8, translateY: new Animated.Value(0) },
+    ]);
+
+    const emojiOpacities = useRef<{ id: number, opacity: Animated.Value }[]>([
+        { id: 2, opacity: new Animated.Value(1) },
+        { id: 3, opacity: new Animated.Value(1) },
+        { id: 4, opacity: new Animated.Value(1) },
+        { id: 5, opacity: new Animated.Value(1) },
+        { id: 6, opacity: new Animated.Value(1) },
+        { id: 8, opacity: new Animated.Value(1) },
     ]);
 
     const panStartY = useRef(0);
@@ -122,7 +140,13 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                     setReaction,
                     isMutedRef,
                     sound,
-                    setShowReactionContainer
+                    setShowReactionContainer,
+                    scales,
+                    emojiTranslationsY,
+                    emojiTranslationsX,
+                    reactionButtonPosition,
+                    gifPositions,
+                    emojiOpacities
                 );
             }
         }
@@ -184,8 +208,12 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                                     },
                                     {
                                         translateY: emojiTranslationsY.current.find(trans => trans.id === reaction.reactionID)?.translateY || new Animated.Value(0),
+                                    },
+                                    {
+                                        translateX: emojiTranslationsX.current.find(trans => trans.id === reaction.reactionID)?.translateX || new Animated.Value(0),
                                     }
-                                ]
+                                ],
+                                opacity: emojiOpacities.current.find(opacity => opacity.id === reaction.reactionID)?.opacity || new Animated.Value(1),
                             }]}
                             onLayout={() => CalculateGifPosition(reaction.reactionID, viewRefsScaleGifs, setGifPositions)}
                             onStartShouldSetResponder={() => true}
@@ -194,7 +222,13 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
                                     setReaction,
                                     isMutedRef,
                                     sound,
-                                    setShowReactionContainer
+                                    setShowReactionContainer,
+                                    scales,
+                                    emojiTranslationsY,
+                                    emojiTranslationsX,
+                                    reactionButtonPosition,
+                                    gifPositions,
+                                    emojiOpacities
                                 )
                             }
                         >
