@@ -100,12 +100,29 @@ const ReactionsContainer: React.FC<ReactionsContainerProps> = ({
             lastActiveEmojiRef
         );
     })
+    .onTouchesUp((_) => {
+        if (lastActiveEmojiRef.current !== null) {
+            const selectedReaction = ReactionData.find(
+                (reaction) => reaction.reactionID === lastActiveEmojiRef.current
+            );
+            if (selectedReaction) {
+                SelectReaction(
+                    selectedReaction,
+                    setReaction,
+                    isMutedRef,
+                    sound,
+                    setShowReactionContainer
+                );
+            }
+        }
+    })
     .onEnd((_) => {
         ResetEmojisScaleAndTranslationAnimation(
             scales,
             emojiTranslationsY
         );
         lastActiveEmojiRef.current = null;
+        setShowReactionContainer(false);
     });
 
     useEffect(() => {
