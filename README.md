@@ -2,6 +2,8 @@
 
 A fully interactive and customizable reaction button component for React Native. Created entirely from scratch using `Reanimated V3`, i.e., no third party libraries utilised. This component allows users to "like" or "unlike" with a simple button press, and provides an engaging emoji selection experience with animated reactions, tooltips, and haptic feedback. Perfect for building rich, interactive user interfaces in chat applications, social media apps, or any app requiring dynamic reactions.
 
+![me](https://drive.google.com/file/d/1hjMhFEaN_md3mPnJ96TlpASSy6cn5AFH/view?usp=drive_link)
+
 ## Features
 
 - **Like/Unlike on Simple Button Press**: A simple button press toggles the like/unlike state. If the iOS ringer is off, it plays a sound on click; otherwise, it uses haptic feedback for a more immersive user experience.
